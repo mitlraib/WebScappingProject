@@ -13,7 +13,7 @@ public class VOX {
         try {
 
 
-            String url = "https://www.vox.com/";
+            String url = "https://www.usnews.com/news";
             Document website = Jsoup
                     .connect(url)
                     .get();
@@ -21,7 +21,7 @@ public class VOX {
             System.out.println("The title is:  " + title);
 
             String currentWord = " ";
-            List<Element> elementList= website.getElementsByClass("c-entry-box--compact__title");
+            List<Element> elementList= website.getElementsByClass("Box-w0dun1-0 FeatureBoxOverlay__FlexibleBox-sc-14gke1i-1 knONpq");
             for (int i = 0; i < elementList.size(); i++) {
                 Element currentElement = elementList.get(i);
                 Element linkElement = currentElement.child(0);
@@ -34,7 +34,7 @@ public class VOX {
                         .connect(articleUrl)
                         .get();
 
-                List<Element> articleBody =  article.getElementsByClass("c-entry-content" );
+                List<Element> articleBody =  article.getElementsByClass("Box-w0dun1-0 ArticleBody__ArticleBox-u2fa96-2 dWWnRo fBXDMo" );
                 System.out.println(articleBody.size());
                 System.out.println(articleBody.get(0).text());
                 String body = articleBody.get(0).text();

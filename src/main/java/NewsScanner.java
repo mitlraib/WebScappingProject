@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -59,7 +60,221 @@ public class NewsScanner extends JFrame {
         this.drawOneWindow();
     }
 
-    public void articleScanner() {
+    public void voxArticleScanner() {
+        new Thread(() -> {
+            while (true) {
+                try {
+                        String voxUrl = "https://www.vox.com/";
+                        Document voxWebsite = Jsoup
+                                .connect(voxUrl)
+                                .get();
+                        String voxTitle = voxWebsite.title();
+                        //  System.out.println("The title is:  " + voxTitle);
+
+
+                        List<Element> voxElementList= voxWebsite.getElementsByClass("c-entry-box--compact__title");
+                        for (int p = 0; p < voxElementList.size(); p++) {
+                            Element voxCurrentElement = voxElementList.get(p);
+                            Element voxLinkElement = voxCurrentElement.child(0);
+                            String voxLinkToArticle = voxLinkElement.attr("href");
+                            //      System.out.println(voxLinkToArticle);
+
+
+                            String voxArticleUrl = voxLinkToArticle;
+                            Document voxArticle = Jsoup
+                                    .connect(voxArticleUrl)
+                                    .get();
+
+                            List<Element> voxArticleBody = voxArticle.getElementsByClass("c-entry-content");
+//                System.out.println(articleBody.size());
+//                System.out.println(articleBody.get(0).text());
+                            String voxBody = voxArticleBody.get(0).text();
+                            String[] voxWords = voxBody.split(" ");
+
+
+                            Map<String, Integer> voxWordsMap = new HashMap<>();
+
+                            for (int j = 0; j < voxWords.length; j++) {
+                                String voxCurrentWord = voxWords[j];
+                                Integer voxCount = voxWordsMap.get(voxCurrentWord);
+
+                                if (voxCount == null) {
+                                    voxCount = 0;
+                                }
+                                voxCount++;
+                                voxWordsMap.put(voxCurrentWord, voxCount);
+
+                            }
+
+                            //    System.out.println(words.length);
+
+                            int mostFrequentlyUsedVox = 0;
+                            String theWordVox = null;
+
+                            TreeMap<String, Integer> voxTenPopularWordsMap = new TreeMap<>();
+
+                            for (int j = 0; j <= 9; j++) {
+                                theWordVox = "";
+                                mostFrequentlyUsedVox = -1;
+                                for (String voxWord : voxWordsMap.keySet()) {
+//                                if (wordToBeIgnored.equals(theWordVox)){
+//                                    voxWordsMap.remove(theWordVox);
+//                                }
+
+                                    Integer theVoxVal = voxWordsMap.get(wordToBeIgnored);
+                                    if (theVoxVal > mostFrequentlyUsedVox) {
+                                        mostFrequentlyUsedVox = theVoxVal;
+                                        theWordVox = wordToBeIgnored;
+                                    }
+                                    if (wordToBeIgnored.equals(theWordVox)) {
+                                        voxWordsMap.remove(theWordVox);
+                                        voxTenPopularWordsMap.remove(theWordVox);
+
+                                    }
+
+                                }
+                                voxTenPopularWordsMap.put(theWordVox, mostFrequentlyUsedVox);
+
+                                voxWordsMap.remove(theWordVox);
+
+
+                            }
+
+                            this.intro = addLabel("The 10 most popular words in this article are:  (from right to left)", J_Label_INTRO_TEXT_X, J_Label_INTRO_TEXT_Y, J_Label_INTRO_TEXT_WIDTH, J_Label_INTRO_TEXT_HEIGHT);
+                            this.theResultMap = addLabel(String.valueOf((voxTenPopularWordsMap.keySet())), J_Label_TEXT_X, J_Label_TEXT_Y, J_Label_TEXT_WIDTH, J_Label_TEXT_HEIGHT);
+
+                            System.out.println(voxTenPopularWordsMap.keySet());
+
+
+//                System.out.printf("The most frequently used word is '%s', %d times",
+//                        theWord,mostFrequentlyUsed);
+//
+//                System.out.println();
+//                System.out.println(words.length);
+
+
+                        break;
+
+                    }
+
+                    sleep(TEN_MINUTES);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+    }
+
+    public void usNewsArticleScanner (){
+        new Thread(() -> {
+            while (true) {
+                try {
+                    String usUrl = "https://www.usnews.com/news";
+                    Document usWebsite = Jsoup
+                            .connect(usUrl)
+                            .get();
+                    String usTitle = usWebsite.title();
+                    //  System.out.println("The title is:  " + usTitle);
+
+
+                    List<Element> usElementList= usWebsite.getElementsByClass("Box-w0dun1-0 FeatureBoxOverlay__FlexibleBox-sc-14gke1i-1 knONpq");
+                    for (int p = 0; p < usElementList.size(); p++) {
+                        Element usCurrentElement = usElementList.get(p);
+                        Element usLinkElement = usCurrentElement.child(0);
+                        String usLinkToArticle = usLinkElement.attr("href");
+                        //      System.out.println(usLinkToArticle);
+
+
+                        String usArticleUrl = usLinkToArticle;
+                        Document usArticle = Jsoup
+                                .connect(usArticleUrl)
+                                .get();
+
+                        List<Element> usArticleBody =  usArticle.getElementsByClass("Box-w0dun1-0 ArticleBody__ArticleBox-u2fa96-2 dWWnRo fBXDMo" );
+//                System.out.println(usArticleBody.size());
+//                System.out.println(usArticleBody.get(0).text());
+                        String usBody = usArticleBody.get(0).text();
+                        String[] usWords = usBody.split(" ");
+
+
+                        Map<String, Integer> usWordsMap = new HashMap<>();
+
+                        for (int j = 0; j < usWords.length; j++) {
+                            String usCurrentWord = usWords[j];
+                            Integer usCount = usWordsMap.get(usCurrentWord);
+
+                            if (usCount == null) {
+                                usCount = 0;
+                            }
+                            usCount++;
+                            usWordsMap.put(usCurrentWord, usCount);
+
+                        }
+
+                        //    System.out.println(words.length);
+
+                        int mostFrequentlyUsedUs = 0;
+                        String theWordUs = null;
+
+                        TreeMap<String, Integer> usTenPopularWordsMap = new TreeMap<>();
+
+                        for (int j = 0; j <= 9; j++) {
+                            theWordUs = "";
+                            mostFrequentlyUsedUs = -1;
+                            for (String voxWord : usWordsMap.keySet()) {
+//                                if (wordToBeIgnored.equals(theWordUs)){
+//                                    usWordsMap.remove(theWordUs);
+//                                }
+
+                                Integer theUsVal = usWordsMap.get(wordToBeIgnored);
+                                if (theUsVal > mostFrequentlyUsedUs) {
+                                    mostFrequentlyUsedUs = theUsVal;
+                                    theWordUs = wordToBeIgnored;
+                                }
+                                if (wordToBeIgnored.equals(theWordUs)) {
+                                    usWordsMap.remove(theWordUs);
+                                    usTenPopularWordsMap.remove(theWordUs);
+
+                                }
+
+                            }
+                            usTenPopularWordsMap.put(theWordUs, mostFrequentlyUsedUs);
+
+                            usWordsMap.remove(theWordUs);
+
+
+                        }
+
+                        this.intro = addLabel("The 10 most popular words in this article are:  (from right to left)", J_Label_INTRO_TEXT_X, J_Label_INTRO_TEXT_Y, J_Label_INTRO_TEXT_WIDTH, J_Label_INTRO_TEXT_HEIGHT);
+                        this.theResultMap = addLabel(String.valueOf((usTenPopularWordsMap.keySet())), J_Label_TEXT_X, J_Label_TEXT_Y, J_Label_TEXT_WIDTH, J_Label_TEXT_HEIGHT);
+
+                        System.out.println(usTenPopularWordsMap.keySet());
+
+
+//                System.out.printf("The most frequently used word is '%s', %d times",
+//                        theWord,mostFrequentlyUsed);
+//
+//                System.out.println();
+//                System.out.println(words.length);
+
+
+                        break;
+
+                    }
+
+                    sleep(TEN_MINUTES);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+    }
+
+    public void nbcArticleScanner() {
         new Thread(() -> {
             while (true) {
                 try {
@@ -102,47 +317,42 @@ public class NewsScanner extends JFrame {
                             }
                             count++;
                             wordsMap.put(currentWord, count);
-
                         }
-                        //    System.out.println(words.length);
 
-                        int mostFrequentlyUsed = 0;
-                        String theWord = null;
+                            //    System.out.println(words.length);
 
-                        Map<String, Integer> tenPopularWordsMap = new HashMap<>();
-//tree map?
+                            int mostFrequentlyUsed = 0;
+                            String theWord = null;
 
-                        for (int j = 0; j <= 9; j++) {
-                            theWord = "";
-                            mostFrequentlyUsed = -1;
-                            for (String word : wordsMap.keySet()) {
+                            TreeMap<String, Integer> tenPopularWordsMap = new TreeMap<>();
+
+                            for (int j = 0; j <= 9; j++) {
+                                theWord = "";
+                                mostFrequentlyUsed = -1;
+                                for (String word : wordsMap.keySet()) {
 //                                if (wordToBeIgnored.equals(theWord)){
 //                                    wordsMap.remove(theWord);
 //                                }
 
-                                Integer theVal = wordsMap.get(word);
-                                if (theVal > mostFrequentlyUsed) {
-                                    mostFrequentlyUsed = theVal;
-                                    theWord = word;
+                                    Integer theVal = wordsMap.get(word);
+                                    if (theVal > mostFrequentlyUsed) {
+                                        mostFrequentlyUsed = theVal;
+                                        theWord = word;
+                                    }
+                                    if (!(wordToBeIgnored==null)&&wordToBeIgnored.equals(theWord)) {
+                                            wordsMap.remove(theWord);
+                                            tenPopularWordsMap.remove(theWord);
+                                    }
                                 }
-                                if (wordToBeIgnored.equals(theWord) ){
-                                    wordsMap.remove(theWord);
-                                    tenPopularWordsMap.remove(theWord);
+                                tenPopularWordsMap.put(theWord, mostFrequentlyUsed);
 
-                                }
-
+                                wordsMap.remove(theWord);
                             }
-                            tenPopularWordsMap.put(theWord, mostFrequentlyUsed);
 
-                            wordsMap.remove(theWord);
+                            this.intro = addLabel("The 10 most popular words in this article are:  (from right to left)", J_Label_INTRO_TEXT_X, J_Label_INTRO_TEXT_Y, J_Label_INTRO_TEXT_WIDTH, J_Label_INTRO_TEXT_HEIGHT);
+                            this.theResultMap = addLabel(String.valueOf((tenPopularWordsMap.keySet())), J_Label_TEXT_X, J_Label_TEXT_Y, J_Label_TEXT_WIDTH, J_Label_TEXT_HEIGHT);
 
-
-                        }
-
-                        this.intro = addLabel("The 10 most popular words in this article are: ",J_Label_INTRO_TEXT_X,J_Label_INTRO_TEXT_Y, J_Label_INTRO_TEXT_WIDTH, J_Label_INTRO_TEXT_HEIGHT);
-                        this.theResultMap = addLabel(String.valueOf((tenPopularWordsMap.keySet())),J_Label_TEXT_X,J_Label_TEXT_Y, J_Label_TEXT_WIDTH, J_Label_TEXT_HEIGHT);
-
-                        System.out.println(tenPopularWordsMap.keySet());
+                            System.out.println(tenPopularWordsMap.keySet());
 
 
 //                System.out.printf("The most frequently used word is '%s', %d times",
@@ -165,6 +375,7 @@ public class NewsScanner extends JFrame {
             }
         }).start();
     }
+
     public JLabel addLabel(String labelText, int x, int y, int width, int height) {
         JLabel label = new JLabel(labelText);
         label.setForeground(Color.black);
@@ -172,6 +383,7 @@ public class NewsScanner extends JFrame {
         this.add(label);
         return label;
     }
+
     private void drawOneWindow() {
         JLabel title = new JLabel();
         title.setText(" Hello there  :) ");
@@ -210,8 +422,9 @@ public class NewsScanner extends JFrame {
         this.add(button);
         button.addActionListener((event) -> {
             System.out.println("button click");
-            articleScanner();
-
+            nbcArticleScanner();
+           voxArticleScanner();
+            usNewsArticleScanner();
             repaint();
 
 
